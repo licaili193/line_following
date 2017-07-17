@@ -50,10 +50,10 @@ void LineTrack::GetVector(double x, double y, double &resX, double &resY)
     double dX = _startX-x-((_startX-x)*_dirX+(_startY-y)*_dirY)*_dirX;
     double dY = _startY-y-((_startX-x)*_dirX+(_startY-y)*_dirY)*_dirY;
 
-    double dl = sqrt(dX*dX+dY*dY);
+    //double dl = sqrt(dX*dX+dY*dY);
 
-    resX = _dirX - _para*_dirY*dl;
-    resY = _dirY + _para*_dirX*dl;
+    resX = _dirX + _para*dX;
+    resY = _dirY + _para*dY;
 }
 
 bool LineTrack::isWithinRange(double x, double y)

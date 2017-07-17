@@ -1,15 +1,16 @@
 #ifndef __TRACKBASE
 #define __TRACKBASE
 
-virtual class TrackBase{
+class TrackBase{
+protected:
     double _width; 
 public:
     TrackBase();
 
     void SetWidth(double w);
     double GetWidth();
-    virtual bool isWithinRange(double x, double y);
-    virtual void GetVector(double x, double y, double &resX, double &resY);
+    virtual bool isWithinRange(double x, double y) = 0;
+    virtual void GetVector(double x, double y, double &resX, double &resY) = 0;
 };
 
 #endif

@@ -22,6 +22,8 @@ public:
     void SetOrigin(double x, double y);
     void SetDirection(double x, double y);
     void SetLength(double l);
+    void GetVector(double x, double y, double &resX, double &resY);
+    bool isWithinRange(double x, double y);
 };
 
 #endif

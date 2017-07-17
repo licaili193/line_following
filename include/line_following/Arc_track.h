@@ -22,6 +22,8 @@ public:
     void SetCenter(double x, double y);
     void SetRadius(double l);
     void SetAngleRange(double s, double e);
+    void GetVector(double x, double y, double &resX, double &resY);
+    bool isWithinRange(double x, double y);
 };
 
 #endif
