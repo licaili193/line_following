@@ -11,6 +11,7 @@ class ArcTrack: public TrackBase
     double _cY;
 
     bool _isClockwise;
+    bool _isInner;
 
     double _radius;
     double _angleS;
@@ -24,6 +25,8 @@ public:
     void SetAngleRange(double s, double e);
     void GetVector(double x, double y, double &resX, double &resY);
     bool isWithinRange(double x, double y);
+    void SetDirection(bool c);
+    void SetRangeDirection(bool c);
 };
 
 #endif

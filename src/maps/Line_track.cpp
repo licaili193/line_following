@@ -3,6 +3,8 @@
 
 #include<cmath>
 
+#include <iostream>
+
 using namespace std;
 
 LineTrack::LineTrack():TrackBase()
@@ -35,8 +37,8 @@ void LineTrack::SetDirection(double x, double y)
     else
     {
         double norm = sqrt(x*x+y*y);
-        x = x/norm;
-        y = y/norm;
+        _dirX = x/norm;
+        _dirY = y/norm;
     }
 }
 
@@ -62,6 +64,7 @@ bool LineTrack::isWithinRange(double x, double y)
     double dY = _startY-y-((_startX-x)*_dirX+(_startY-y)*_dirY)*_dirY;
 
     double dl = sqrt(dX*dX+dY*dY);
+    //cout<<"Debug 1: "<<dl<<endl;
 
     if(dl>_width) return false;
     else
@@ -75,6 +78,7 @@ bool LineTrack::isWithinRange(double x, double y)
         dY = midY-y-(-(midX-x)*_dirY+(midY-y)*_dirX)*_dirX;
 
         dl = sqrt(dX*dX+dY*dY);
+        //cout<<"Debug 2: "<<dl<<endl;
 
         if(dl>_length/2) return false;
         else return true;
