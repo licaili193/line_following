@@ -4,7 +4,8 @@ import rospy
 import tf
 import math
 import time
-import serial
+import socket
+#import serial############
 from geometry_msgs.msg import TransformStamped
 from line_following.srv import *
 
@@ -12,13 +13,38 @@ x=0.0
 y=0.0
 theta=0.0
 
-d=0.1
+d=0.05
 l=0.085
 
 status = 0
 
-zumo = serial.Serial('/dev/ttyUSB0',115200)
-time.sleep(1)
+host = ''
+port = 5005
+
+#zumo = serial.Serial('/dev/ttyUSB0',115200)############
+#time.sleep(1)################
+
+def setupServer():
+    global s
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print("Socket Created")
+    try:
+        s.bind((host,port))
+    except socket.error as msg:
+        print(msg)
+        return s
+
+def setupConnection():
+    s.listen(3)
+    conn, address = s.accept()
+    print ("Connected")
+    return conn
+
+def dataTransfer(conn, rightVelocity, leftVelocity):
+    conn.sendall(str.encode(rightVelocity + ', ' + leftVelocity + ';'))
+    feedback = conn.recv(1024)
+    feedback = feedback.decode('utf-8')
+    print (feedback)
 
 def lf_client():
     global x
@@ -26,6 +52,14 @@ def lf_client():
     global theta
 
     global status
+
+    rospy.wait_for_service('lf_grad')
+    try:
+        nf = rospy.ServiceProxy('lf_grad', LineFollowing)
+        resp = nf(status, x, y)
+        return [resp.res, resp.dx, resp.dy]
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
 
     if status == 0:
         if (x+0.3778)*(x+0.3778)+(y-0.4849)*(y-0.4849)<=0.0762*0.0762:
@@ -40,16 +74,12 @@ def lf_client():
         if (x-0.3772)*(x-0.3772)+(y+0.2694)*(y+0.2694)<=0.0762*0.0762:
             status = 0
 
-    rospy.wait_for_service('lf_grad')
-    try:
-        nf = rospy.ServiceProxy('lf_grad', LineFollowing)
-        resp = nf(status, x, y)
-        return [resp.res, resp.dx, resp.dy]
-    except rospy.ServiceException, e:
-        print "Service call failed: %s"%e
-
 def cmdZumo(a,b):
-    print zumo.write(str(a)+","+str(b)+";")
+    try:
+        conn = setupConnection()
+        dataTransfer(conn, a, b)
+    except:
+	s.close()
 
 def constrain(v):
 	if v>2: 
@@ -65,14 +95,14 @@ def proc():
     global y
     global theta
 
-    t = tfl.getLatestCommonTime("/vicon/corner_1/corner_1", "/vicon/zumoTracks/zumoTracks")
-    position1, quaternion1 = tfl.lookupTransform("/vicon/corner_1/corner_1", "/vicon/zumoTracks/zumoTracks", t)
-    t = tfl.getLatestCommonTime("/vicon/corner_2/corner_2", "/vicon/zumoTracks/zumoTracks")
-    position2, quaternion2 = tfl.lookupTransform("/vicon/corner_2/corner_2", "/vicon/zumoTracks/zumoTracks", t)
-    t = tfl.getLatestCommonTime("/vicon/corner_3/corner_3", "/vicon/zumoTracks/zumoTracks")
-    position3, quaternion3 = tfl.lookupTransform("/vicon/corner_3/corner_3", "/vicon/zumoTracks/zumoTracks", t)
-    t = tfl.getLatestCommonTime("/vicon/corner_4/corner_4", "/vicon/zumoTracks/zumoTracks")
-    position4, quaternion4 = tfl.lookupTransform("/vicon/corner_4/corner_4", "/vicon/zumoTracks/zumoTracks", t)
+    t = tfl.getLatestCommonTime("/vicon/corner_1/corner_1", "/vicon/rpi3/rpi3")
+    position1, quaternion1 = tfl.lookupTransform("/vicon/corner_1/corner_1", "/vicon/rpi3/rpi3", t)
+    t = tfl.getLatestCommonTime("/vicon/corner_2/corner_2", "/vicon/rpi3/rpi3")
+    position2, quaternion2 = tfl.lookupTransform("/vicon/corner_2/corner_2", "/vicon/rpi3/rpi3", t)
+    t = tfl.getLatestCommonTime("/vicon/corner_3/corner_3", "/vicon/rpi3/rpi3")
+    position3, quaternion3 = tfl.lookupTransform("/vicon/corner_3/corner_3", "/vicon/rpi3/rpi3", t)
+    t = tfl.getLatestCommonTime("/vicon/corner_4/corner_4", "/vicon/rpi3/rpi3")
+    position4, quaternion4 = tfl.lookupTransform("/vicon/corner_4/corner_4", "/vicon/rpi3/rpi3", t)
     #print position, quaternion
     x = (position1[0]+position2[0]+position3[0]+position4[0])/4
     y = (position1[1]+position2[1]+position3[1]+position4[1])/4
@@ -110,5 +140,10 @@ def listener():
         proc()
 
 if __name__ == '__main__':
+    global s
+    global conn
+
+    s = setupServer()
+
     listener()
 
