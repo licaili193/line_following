@@ -10,6 +10,7 @@ ArcTrack::ArcTrack():TrackBase()
     _cX = 0;
     _cY = 0;
     _radius = 1;
+    _para = 1;
     _angleS = _angleE = 0;
 
     _isClockwise = true;
@@ -33,17 +34,22 @@ void ArcTrack::SetRadius(double l)
     _radius = l;
 }
 
+void ArcTrack::SetParameter(double p)
+{
+    _para = p;
+}
+
 void ArcTrack::GetVector(double x, double y, double &resX, double &resY)
 {
     if(_isClockwise)
     {
-        resX = _radius*(y-_cY) - 4*(x-_cX)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
-        resY = -_radius*(x-_cX) - 4*(y-_cY)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
+        resX = _radius*(y-_cY) - _para*4*(x-_cX)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
+        resY = -_radius*(x-_cX) - _para*4*(y-_cY)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
     }
     else
     {
-        resX = -_radius*(y-_cY) - 4*(x-_cX)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
-        resY = _radius*(x-_cX) - 4*(y-_cY)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
+        resX = -_radius*(y-_cY) - _para*4*(x-_cX)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
+        resY = _radius*(x-_cX) - _para*4*(y-_cY)*((x-_cX)*(x-_cX)+(y-_cY)*(y-_cY)-_radius*_radius);
     }
 }
 

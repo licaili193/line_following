@@ -7,7 +7,8 @@
                 "path": [
                     "/home/themainframe/catkin_ws/devel/include",
                     "/opt/ros/kinetic/include",
-                    "/usr/include"
+                    "/usr/include",
+                    "${workspaceRoot}"
                 ]
             },
             "includePath": [
@@ -20,5 +21,6 @@
             "name": "Linux",
             "intelliSenseMode": "clang-x64"
         }
-    ]
+    ],
+    "version": 3
 }

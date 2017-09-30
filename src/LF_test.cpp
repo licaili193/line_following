@@ -61,19 +61,23 @@ int main(int argc, char **argv)
 
     ros::NodeHandle n;
 
+    ros::MultiThreadedSpinner spinner(20); // Use 4 threads
+
     ros::ServiceServer service = n.advertiseService("lf_grad", add);
     ROS_INFO("Ready to calculate gradients.");
     
     ros::Subscriber sub = n.subscribe("lf_cmd", 1000, cmdCallback);
     ROS_INFO("Welcome to line_following command center!");
 
-    ros::Rate r(10); // 10 hz
+    //ros::Rate r(10); // 10 hz
 
-    while(isRun)
-    {
-        ros::spinOnce();
-        r.sleep();
-    }
+    //while(isRun)
+    //{
+    //    ros::spinOnce();
+    //    r.sleep();
+    //}
+
+    spinner.spin();
 
     return 0;
 }
