@@ -99,6 +99,8 @@ def zumoThread(index, frameName, controlRate, mutex_tf):
             nf = rospy.ServiceProxy('lf_grad', LineFollowing)
             resp = nf(status, x, y)
             res = [resp.res, resp.dx, resp.dy]
+            nf_c = rospy.ServiceProxy('lf_check', CollisionCheck)
+            cf = nf_c(index, x, y, theta)
 
              #Road 1 - starts on the bottom straight away (S94) and loops CCW
             if status == 0: #S94
@@ -138,14 +140,20 @@ def zumoThread(index, frameName, controlRate, mutex_tf):
                 if x<2.26: #T125
                     status = 0
 
+            ratio = 1
+            if cf.res == 0:
+                ratio = cf.ratio
+            else:
+                print "Unable to check collision"
+
             if res[0] == 0:
 	        tv = res[1]*math.cos(theta)+res[2]*math.sin(theta)
 	        tw = 1/d*(res[2]*math.cos(theta)-res[1]*math.sin(theta))
 	        rv = tv+0.5*l*tw
 	        lv = tv-0.5*l*tw
                 fac = 2*speed/(rv+lv)
-	        v = fac*lv
-	        w = fac*rv
+	        v = fac*lv*ratio
+	        w = fac*rv*ratio
                 #diff = abs(v-w)
 	        #print "Zumo "+str(index)+" u1->" +str(v) +" u2->" +str(w)
 	        cmdZumo(index,v,w)
@@ -172,6 +180,7 @@ def listener():
     t1.start()
     t2 = Thread(target = zumoThread, args = (2, "zumoTest2", 0.1, mutex_tf))
     t2.start()
+    '''
     t3 = Thread(target = zumoThread, args = (3, "zumoTest3", 0.1, mutex_tf))
     t3.start()
     t4 = Thread(target = zumoThread, args = (4, "zumoTest4", 0.1, mutex_tf))
@@ -190,7 +199,7 @@ def listener():
     t10.start()
     t11 = Thread(target = zumoThread, args = (11, "zumoTest11", 0.1, mutex_tf))
     t11.start()
-
+    '''
     rospy.spin()
 
 if __name__ == '__main__':

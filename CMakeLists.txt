@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(line_following)
 
+add_compile_options(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
@@ -10,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 add_service_files(FILES LineFollowing.srv)
+add_service_files(FILES CollisionCheck.srv)
 
 generate_messages(
   DEPENDENCIES
