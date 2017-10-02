@@ -48,8 +48,8 @@ void MapBuilder::BuildMap()
 
     //source 2
     ArcTrack* lt3 = new ArcTrack;//A105-A101-A100
-    lt3->SetCenter(-2.032,0.3556);
-    lt3->SetRadius(0.6096);
+    lt3->SetCenter(-2.032 -.01,0.3556+0.01); //(-2.032 -.01,0.3556+.2)
+    lt3->SetRadius(0.6096-.01);
     lt3->SetAngleRange(-1.172861,3.0102);
     lt3->SetWidth(0.2286);
     lt3->SetDirection(false);
@@ -82,7 +82,7 @@ void MapBuilder::BuildMap()
 
     //source 5
     ArcTrack* lt6 = new ArcTrack;//A92
-    lt6->SetCenter(1.0676,0.1286);
+    lt6->SetCenter(1.0676-0.02,0.1286);
     lt6->SetRadius(0.6877);
     lt6->SetAngleRange(-1.6650,-2.7541);
     lt6->SetWidth(0.2286);
@@ -93,7 +93,7 @@ void MapBuilder::BuildMap()
     trackList.push_back(lt6);    
 
     //source 6
-    ArcTrack* lt7 = new ArcTrack;//A87-84-81
+    ArcTrack* lt7 = new ArcTrack;//A81
     lt7->SetCenter(2.2352,0.6096);
     lt7->SetRadius(0.6096);
     lt7->SetAngleRange(0.3194,1.1694); //origially -4.5,-1.5708
@@ -193,8 +193,8 @@ void MapBuilder::BuildMap()
     trackList.push_back(lt14); 
 
     //source 14
-    ArcTrack* lt15 = new ArcTrack;//A87-84-81
-    lt15->SetCenter(2.2352,0.6096);
+    ArcTrack* lt15 = new ArcTrack;//A87
+    lt15->SetCenter(2.2352-0.02,0.6096);
     lt15->SetRadius(0.6096);
     lt15->SetAngleRange(1.1694,2.5656); //origially -4.5,-1.5708
     lt15->SetWidth(0.2286);
@@ -205,8 +205,8 @@ void MapBuilder::BuildMap()
     trackList.push_back(lt15);
 
     //source 15
-    ArcTrack* lt16 = new ArcTrack;//A87-84-81
-    lt16->SetCenter(2.2352,0.6096);
+    ArcTrack* lt16 = new ArcTrack;//A84
+    lt16->SetCenter(2.2352-0.02,0.6096);
     lt16->SetRadius(0.6096);
     lt16->SetAngleRange(2.5656,-1.5708); //origially -4.5,-1.5708
     lt16->SetWidth(0.2286);
