@@ -4,10 +4,13 @@ import rospy
 import tf
 import math
 import time
+import copy
 from threading import Thread, Lock
 from geometry_msgs.msg import TransformStamped
 from line_following.srv import *
 from socketIO_client import SocketIO, LoggingNamespace
+
+import Path
 
 d=0.05
 l=0.09
@@ -41,7 +44,7 @@ def constrain(v):
     else:
         return v
 
-def zumoThread(index, frameName, controlRate, mutex_tf):
+def zumoThread(index, frameName, controlRate, mutex_tf, path):
     global d
     global l
     global isRun
@@ -55,9 +58,10 @@ def zumoThread(index, frameName, controlRate, mutex_tf):
     pre_x = 0
     pre_y = 0
     theta = 0
-    status = 0
+    status = path.GetSegmentIDNoCheck()
     speed = 0.3*1.145
     cur_speed = 0
+    p_index = 0
     cur_t = time.time()
     while isRun:
         mutex_tf.acquire()
@@ -93,7 +97,7 @@ def zumoThread(index, frameName, controlRate, mutex_tf):
         euler = tf.transformations.euler_from_quaternion(q)
         theta = euler[2]
         #rospy.loginfo("Zumo"+str(index)+" position: x->"+str(x)+" y->"+str(y)+" theta->"+str(theta)+" speed->"+str(cur_speed))
-        rospy.loginfo("Zumo"+str(index)+" speed->"+str(cur_speed))
+        rospy.loginfo("Zumo"+str(index)+" speed->"+str(cur_speed)+" status->"+str(status))
         rospy.wait_for_service('lf_grad')
         try:
             nf = rospy.ServiceProxy('lf_grad', LineFollowing)
@@ -102,43 +106,7 @@ def zumoThread(index, frameName, controlRate, mutex_tf):
             nf_c = rospy.ServiceProxy('lf_check', CollisionCheck)
             cf = nf_c(index, x, y, theta)
 
-             #Road 1 - starts on the bottom straight away (S94) and loops CCW
-            if status == 0: #S94
-                #rospy.loginfo("Zumo on S94")
-                if x<-0.9506: #T138
-                    status = 1
-            elif status == 1: #A106
-                #rospy.loginfo("Zumo on A106")
-                if x<-2.276: #T144
-                    status = 2
-            elif status == 2: #A105/101/100
-                #rospy.loginfo("Zumo on A105/101/100")
-                if x>-1.61 and y>0.2042: #T139
-                    status = 3
-            elif status == 3: #A99
-                #rospy.loginfo("Zumo on A99")
-                if x>-0.8744:#-0.8404: #T135
-                    status = 4
-            elif status == 4: #S95/91/89
-                #rospy.loginfo("Zumo on S95/91/89")
-                if x>1.1263: #T127
-                    status = 5
-            elif status == 5: #A92
-                #rospy.loginfo("Zumo on A92")
-                if y<0.435: #T120
-                    status = 14
-            elif status == 14: #A87
-                #rospy.loginfo("Zumo on A87")
-                if x>2.2352: #T125
-                    status = 15
-            elif status == 15: #A84
-                #rospy.loginfo("Zumo on A84")
-                if y>1.2: #T125
-                    status = 6
-            elif status == 6: #A81
-                #rospy.loginfo("Zumo on A81")
-                if x<2.26: #T125
-                    status = 0
+            status = path.GetSegmentID(x,y)
 
             ratio = 1
             if cf.res == 0:
@@ -176,9 +144,9 @@ def listener():
 
     time.sleep(1)
 
-    t1 = Thread(target = zumoThread, args = (1, "zumoTest1", 0.1, mutex_tf))
+    t1 = Thread(target = zumoThread, args = (1, "zumoTest1", 0.1, mutex_tf, copy.deepcopy(Path.GetDefaultPath(0))))
     t1.start()
-    t2 = Thread(target = zumoThread, args = (2, "zumoTest2", 0.1, mutex_tf))
+    t2 = Thread(target = zumoThread, args = (2, "zumoTest2", 0.1, mutex_tf, copy.deepcopy(Path.GetDefaultPath(0))))
     t2.start()
     '''
     t3 = Thread(target = zumoThread, args = (3, "zumoTest3", 0.1, mutex_tf))
@@ -197,9 +165,10 @@ def listener():
     t9.start()
     t10 = Thread(target = zumoThread, args = (10, "zumoTest10", 0.1, mutex_tf))
     t10.start()
-    t11 = Thread(target = zumoThread, args = (11, "zumoTest11", 0.1, mutex_tf))
-    t11.start()
     '''
+    t11 = Thread(target = zumoThread, args = (11, "zumoTest11", 0.1, mutex_tf, copy.deepcopy(Path.GetDefaultPath(1))))
+    t11.start()
+    
     rospy.spin()
 
 if __name__ == '__main__':
