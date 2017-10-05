@@ -61,6 +61,15 @@ bool check(line_following::CollisionCheck::Request  &req,
     double x = (double)req.x;
     double y = (double)req.y;
     double theta = (double)req.theta;
+    int flag = (int)req.flag;
+    if(flag)
+    {
+        posTable.erase(id);
+        res.res = 1;
+        res.ratio = 1;
+        ROS_INFO("Erased robot: [%d]", id);
+        return true;
+    } 
     posTable[id] = make_pair(x,y);
     ROS_INFO("Check Request: id=%d", id);
 
@@ -117,7 +126,7 @@ int main(int argc, char **argv)
 
     ros::NodeHandle n;
 
-    ros::MultiThreadedSpinner spinner(20); // Use 4 threads
+    ros::MultiThreadedSpinner spinner(10); // Use 4 threads
 
     ros::ServiceServer service = n.advertiseService("lf_grad", add);
     ros::ServiceServer serviceCheck = n.advertiseService("lf_check", check);

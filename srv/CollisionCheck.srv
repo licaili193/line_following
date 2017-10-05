@@ -2,6 +2,7 @@ int32 id
 float64 x
 float64 y
 float64 theta
+int32 flag
 --- 
 int32 res 
 float64 ratio

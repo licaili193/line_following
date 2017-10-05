@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_service_files(FILES LineFollowing.srv)
 add_service_files(FILES CollisionCheck.srv)
+add_service_files(FILES MergeControl.srv)
 
 generate_messages(
   DEPENDENCIES
@@ -47,3 +48,13 @@ target_link_libraries(lf_test
 )
 
 add_dependencies(lf_test ${PROJECT_NAME}_generate_messages_cpp)
+
+add_executable(lf_merge 
+src/LF_merge.cpp
+src/Merge/Merge_builder.cpp)
+
+target_link_libraries(lf_merge
+   ${catkin_LIBRARIES}
+)
+
+add_dependencies(lf_merge ${PROJECT_NAME}_generate_messages_cpp)
