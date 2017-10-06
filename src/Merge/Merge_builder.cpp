@@ -25,7 +25,9 @@ void MergeBuilder::BuildMerge()
 {
     ControlZone* z = new ControlZone(0);
     z->init_time = time(0);
-    z->entrences.push_back(EntrenceInfo{1.376,0.3048,0.3});
-    z->entrences.push_back(EntrenceInfo{1.376,0.3048,0.3});
+    //z->entrences.push_back(EntrenceInfo{1.376,0.3048,0.3});
+    //z->entrences.push_back(EntrenceInfo{1.376,0.3048,0.3});
+    z->entrences.push_back(EntrenceInfo{1.65,0.3048,0.3});
+    z->entrences.push_back(EntrenceInfo{1.35,0.3048,0.3});
     zoneList.push_back(z);
 }

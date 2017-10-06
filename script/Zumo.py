@@ -86,6 +86,16 @@ def zumoThread(index, frameName, controlRate, mutex_tf, path):
 
     controlInfoPre = (None,None)
     cur_t = time.time()
+
+    position1 = None
+    quaternion1 = None
+    position2 = None
+    quaternion2 = None
+    position3 = None
+    quaternion3 = None
+    position4 = None
+    quaternion4 = None
+
     while isRun:
         try:
             mutex_tf.acquire()
@@ -99,10 +109,14 @@ def zumoThread(index, frameName, controlRate, mutex_tf, path):
             position4, quaternion4 = tfl.lookupTransform("/static_corner_4", "/vicon/"+frameName+"/"+frameName, t)
             mutex_tf.release()
             #print position, quaternion
-            x = (position1[0]+position2[0]+position3[0]+position4[0])/4
-            y = (position1[1]+position2[1]+position3[1]+position4[1])/4
         except:
             print "Failed to call tf"
+        if (position1 is None) or (quaternion1 is None): continue
+        if (position2 is None) or (quaternion2 is None): continue
+        if (position3 is None) or (quaternion3 is None): continue
+        if (position4 is None) or (quaternion4 is None): continue
+        x = (position1[0]+position2[0]+position3[0]+position4[0])/4
+        y = (position1[1]+position2[1]+position3[1]+position4[1])/4
         temp_t = time.time()
         if temp_t != cur_t:
             f_sum-=f_array[f_index]
@@ -146,8 +160,10 @@ def zumoThread(index, frameName, controlRate, mutex_tf, path):
                         if mf.isFirst: isControlled = False
                         else:
                             isControlled = True
-                            abcd = RT_control(time.time()-mf.tinit,mf.tmi-mf.tinit,0,mf.L,speed,speed)
+                            abcd = RT_control(time.time()-mf.tinit,mf.tmi-mf.tinit,0,mf.L,cur_speed,cur_speed)
                             tinit = mf.tinit
+                            print "Robot "+str(index)+": to->"+str(time.time()-mf.tinit)+" tmi->"+str(mf.tmi-mf.tinit)+" xi->0 xf->"+str(mf.L)+" v->"+str(cur_speed)+" vf->"+str(cur_speed)
+                            print "ABCD: "+str(abcd)
                     elif controlInfo[0] == 2:
                         isControlled = False
                         rospy.wait_for_service('lf_merge')
@@ -166,7 +182,13 @@ def zumoThread(index, frameName, controlRate, mutex_tf, path):
                 else:
                     temps = 0.5*abcd[0]*(time.time()-tinit)*(time.time()-tinit)+abcd[1]*(time.time()-tinit)+abcd[2]
                     ttemps = temps.item(0)
-                    print ttemps
+                    vdiff = ttemps-cur_speed
+                    ttemps = ttemps+0.5*vdiff
+                    if abcd[0]>0 and ttemps>speed: ttemps = speed
+                    if abcd[0]<=0 and ttemps<speed: ttemps = speed 
+                    if ttemps<0.1: ttemps = 0.1
+                    if ttemps>0.7: ttemps = 0.7
+                    #print ttemps
                     fac = 2*ttemps/(rv+lv)
 	        v = fac*lv*ratio*(1/(diff+1))
 	        w = fac*rv*ratio*(1/(diff+1))
